@@ -6,7 +6,7 @@ import ProductItem from '../components/ProductItem';
 
 
 const Collection = () => {
-  const { products } = useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ShopContext);
   const [showFilter, setShowFilter] = useState(false);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -67,6 +67,15 @@ const Collection = () => {
   const applyFilterAndSort = () => {
   let productsCopy = products.slice();
 
+  if(showSearch && search){
+    productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase())||
+    item.category.toLowerCase().includes(search.toLowerCase()) ||
+    item.subCategory.toLowerCase().includes(search.toLowerCase())
+  );
+  }
+
+   
+
   // Apply filters
   if (category.length > 0) {
     productsCopy = productsCopy.filter(item => category.includes(item.category));
@@ -104,8 +113,14 @@ const Collection = () => {
   //   )
 
     useEffect(() => {
+      const delayDebounce = setTimeout(()=> {
+
   applyFilterAndSort();
-}, [category, subCategory, sortType, products]);
+        }, 500);
+
+        return ()=> clearTimeout(delayDebounce);
+
+}, [category, subCategory, sortType, products, showSearch, search]);
 
 
 
@@ -167,9 +182,9 @@ const Collection = () => {
       {
         filterProducts.map((item, index)=>(
           <ProductItem key={index} name={item.name} id={item._id} price={item.price} image={item.image} />
-        ) )
+        ))
       }
-        
+         
       </div>
     </div>
 
